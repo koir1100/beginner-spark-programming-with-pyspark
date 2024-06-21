@@ -9,6 +9,12 @@ spark = SparkSession \
     .config("spark.sql.adaptive.enabled", False) \
     .getOrCreate()
 
+# Spark Higher Version default setting is enabled.
+print(f"""Before Broadcast Threshold >>>>>>>>>>>> {spark.conf.get("spark.sql.autoBroadcastJoinThreshold")}""")
+
+spark.conf.set("spark.sql.autoBroadcastJoinThreshold", -1)
+print(f"""After Broadcast Threshold >>>>>>>>>>>> {spark.conf.get("spark.sql.autoBroadcastJoinThreshold")}""")
+
 df_large = spark.read.json("large_data/")
 df_small = spark.read.json("small_data/")
 
