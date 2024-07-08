@@ -15,7 +15,7 @@ def do_job(f1, f2, id, format="json"):
 
 
 scheduler_mode = "FIFO"
-spark = SparkSession\
+spark = SparkSession \
         .builder \
         .appName ("FIFO Scheduler Demo") \
         .config("spark.sql.autoBroadcastJoinThreshold", "50B") \
@@ -46,7 +46,7 @@ thread2 = threading.Thread(
 thread1.start()
 thread2.start()
 
-thread1.join()
+thread1.join() # join method: 해당 스레드의 작업이 끝날 때까지 기다림
 thread2.join()
 
 end_time_fifo = time.time()

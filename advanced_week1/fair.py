@@ -2,7 +2,8 @@ from pyspark.sql import SparkSession
 import threading
 import time
 
-
+# thread 내 do_job 함수가 호출되어야 함
+# spark.scheduler.pool는 풀을 사용하려는 스레드 내 호출되어야 함
 def do_job(f1, f2, id, pool_name, format="json"):
     spark.sparkContext.setLocalProperty("spark.scheduler.pool", pool_name)
     print(spark.sparkContext.getLocalProperty("spark.scheduler.pool"))
@@ -16,7 +17,7 @@ def do_job(f1, f2, id, pool_name, format="json"):
     outputs.append(df1.join(df2, id, "Inner").count())
 
 
-spark = SparkSession\
+spark = SparkSession \
     .builder \
     .appName ("Fair Scheduler Demo") \
     .config("spark.sql.autoBroadcastJoinThreshold", "50B") \
