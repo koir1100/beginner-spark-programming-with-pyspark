@@ -25,30 +25,30 @@ case = 1
 
 if case == 0:
     spark.sql("""
-SELECT  item_id, SUM(cnt)
+SELECT item_id, SUM(cnt)
 FROM (
-  SELECT item_id, salt, COUNT(1) cnt
-  FROM (
-    SELECT FLOOR(RAND()*200) salt, item_id
-    FROM sales
-  )
-  GROUP BY 1, 2
+    SELECT item_id, salt, COUNT(item_id) AS cnt
+    FROM (
+        SELECT FLOOR(RAND()*200) salt, item_id
+        FROM sales
+    )
+    GROUP BY item_id, salt
 )
-GROUP BY 1
-ORDER BY 2 DESC
+GROUP BY item_id
+ORDER BY SUM(cnt) DESC
 LIMIT 100;""").show(5)
 
 elif case == 1:
     spark.conf.set("spark.sql.adaptive.enabled", True)
     spark.sql("""
-SELECT  item_id, SUM(cnt) 
+SELECT item_id, SUM(cnt) 
 FROM (
-  SELECT item_id, salt, COUNT(1) cnt
-  FROM (
-    SELECT FLOOR(RAND()*200) salt, item_id
-    FROM sales
-  )
-  GROUP BY 1, 2
+    SELECT item_id, salt, COUNT(1) cnt
+    FROM (
+        SELECT FLOOR(RAND()*200) salt, item_id
+        FROM sales
+    )
+    GROUP BY 1, 2
 )
 GROUP BY 1
 ORDER BY 2 DESC
@@ -70,26 +70,26 @@ SELECT item_id, COUNT(1)
 FROM sales
 GROUP BY 1
 ORDER BY 2 DESC
-LIMIT 100;""").show(5)
+LIMIT 100;
+""").show(5)
 
 elif case == 4:
     spark.sql("""
 SELECT date, sum(quantity * price) AS total_sales
 FROM (
-  SELECT *, CASE WHEN item_id = 100 THEN FLOOR(RAND()*20) ELSE 1 END AS salt 
-  FROM sales
+    SELECT *, CASE WHEN item_id = 100 THEN FLOOR(RAND()*20) ELSE 1 END AS salt 
+    FROM sales
 ) s
 JOIN (
-  SELECT *, EXPLODE(ARRAY(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19)) AS salt 
-  FROM items
-  WHERE id = 100
+    SELECT *, EXPLODE(ARRAY(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19)) AS salt 
+    FROM items
+    WHERE id = 100
 
-  UNION
+    UNION
 
-  SELECT *, 1 AS salt
-  FROM items
-  WHERE id <> 100
- 
+    SELECT *, 1 AS salt
+    FROM items
+    WHERE id <> 100
 ) i ON s.item_id = i.id and s.salt = i.salt
 GROUP BY 1
 ORDER BY 2 DESC;""").show(5)
